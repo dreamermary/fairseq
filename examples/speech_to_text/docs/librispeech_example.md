@@ -11,7 +11,7 @@ Download and preprocess LibriSpeech data with
 # additional Python packages for S2T data processing/model training
 pip install pandas torchaudio sentencepiece
 
-python examples/speech_to_text/prep_librispeech_data.py \
+python3 -m examples.speech_to_text./prep_librispeech_data \
   --output-root ${LS_ROOT} --vocab-type unigram --vocab-size 10000
 ```
 where `LS_ROOT` is the root path for downloaded data as well as generated files (manifest, features, vocabulary and
@@ -23,12 +23,13 @@ if you want to use our pre-trained models.
 ## Training
 ```bash
 fairseq-train ${LS_ROOT} --save-dir ${SAVE_DIR} \
-  --config-yaml config.yaml --train-subset train --valid-subset dev \
+  --config-yaml config.yaml --train-subset train-clean-100 --valid-subset test-clean \
   --num-workers 4 --max-tokens 40000 --max-update 300000 \
   --task speech_to_text --criterion label_smoothed_cross_entropy --report-accuracy \
   --arch s2t_transformer_s --share-decoder-input-output-embed \
   --optimizer adam --lr 2e-3 --lr-scheduler inverse_sqrt --warmup-updates 10000 \
-  --clip-norm 10.0 --seed 1 --update-freq 8
+  --clip-norm 10.0 --seed 1 --update-freq 8 \
+  --max-epoch 10
 ```
 where `SAVE_DIR` is the checkpoint root path. Here we use `--arch s2t_transformer_s` (31M parameters) as example.
 For better performance, you may switch to `s2t_transformer_m` (71M, with `--lr 1e-3`) or `s2t_transformer_l`

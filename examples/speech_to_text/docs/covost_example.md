@@ -12,12 +12,12 @@ We replicate the experiments in
 pip install pandas torchaudio sentencepiece
 
 # En ASR
-python examples/speech_to_text/prep_covost_data.py \
-  --data-root ${COVOST_ROOT} --vocab-type char --src-lang en
+python3 -m examples.speech_to_text.prep_covost_data \
+  --data-root ${COVOST_ROOT} --vocab-type char --src-lang en --tgt-lang zh-CN
 # ST
-python examples/speech_to_text/prep_covost_data.py \
+python3 examples.speech_to_text.prep_covost_data \
   --data-root ${COVOST_ROOT} --vocab-type char \
-  --src-lang fr --tgt-lang en
+  --src-lang en --tgt-lang zh-CN
 ```
 The generated files (manifest, features, vocabulary and data configuration) will be added to
 `${COVOST_ROOT}/${SOURCE_LANG_ID}`.
@@ -30,12 +30,13 @@ Download our vocabulary files if you want to use our pre-trained models:
 #### Training
 We train an En ASR model for encoder pre-training of all ST models:
 ```bash
+ASR_SAVE_DIR=/content/drive/MyDrive/fairseq/cv/asr
 fairseq-train ${COVOST_ROOT}/en \
   --config-yaml config_asr_en.yaml --train-subset train_asr_en --valid-subset dev_asr_en \
   --save-dir ${ASR_SAVE_DIR} --num-workers 4 --max-tokens 40000 --max-update 60000 \
   --task speech_to_text --criterion label_smoothed_cross_entropy --report-accuracy \
   --arch s2t_transformer_s --optimizer adam --lr 2e-3 --lr-scheduler inverse_sqrt \
-  --warmup-updates 10000 --clip-norm 10.0 --seed 1 --update-freq 8
+  --warmup-updates 10000 --clip-norm 10.0 --seed 1 --update-freq 8 --max-epoch 10
 ```
 where `ASR_SAVE_DIR` is the checkpoint root path. We set `--update-freq 8` to simulate 8 GPUs with 1 GPU.
 You may want to update it accordingly when using more than 1 GPU.

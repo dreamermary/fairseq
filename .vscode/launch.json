@@ -4,19 +4,34 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        
 
-
-
-    
+        {
+            "name": "PC-COVO-prep",
+            "type": "python",
+            "request": "launch",
+            // "program": "${file}",
+            "module": "examples.speech_to_text.prep_covost_data",
+            "console": "integratedTerminal",
+            "cwd": "/content/drive/MyDrive/git/fork/fairseq",//current work dir
+            "args": [
+               "--data-root","/content/drive/MyDrive/dataset/cv/root_v4_en/",
+                "--vocab-type","char",
+                "--src-lang","en", 
+                "--tgt-lang","zh-CN"
+            ]
+        },
+     
         {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "cwd": "/content/drive/MyDrive/git/fork/fairseq",//current work dir
         },  
         {
-            "name": "P-C-train",
+            "name": "P-C-train-libri",
             "type": "python",
             "request": "launch",
             "program": "${file}",

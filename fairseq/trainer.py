@@ -482,7 +482,8 @@ class Trainer(object):
 
             self.set_num_updates(last_optim["num_updates"])
 
-        if extra_state is not None:
+        ## load checkpoint
+        if extra_state is not None: 
             itr_state = extra_state["train_iterator"]
             epoch = itr_state["epoch"]
 

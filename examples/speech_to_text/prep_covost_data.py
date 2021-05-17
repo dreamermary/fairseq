@@ -48,13 +48,14 @@ class CoVoST(Dataset):
         found at root path. (default: ``False``).
     """
 
+
     COVOST_URL_TEMPLATE = (
         "https://dl.fbaipublicfiles.com/covost/"
         "covost_v2.{src_lang}_{tgt_lang}.tsv.tar.gz"
     )
 
     VERSIONS = {2}
-    SPLITS = ["train", "dev", "test"]
+    SPLITS = ["train", "dev"]#, "test"
 
     XX_EN_LANGUAGES = {
         1: ["fr", "de", "nl", "ru", "es", "it", "tr", "fa", "sv-SE", "mn", "zh-CN"],
@@ -131,6 +132,7 @@ class CoVoST(Dataset):
         cv_tsv_path = self.root / "validated.tsv"
         assert cv_tsv_path.is_file()
 
+        ## translation url, download, unpack
         covost_url = self.COVOST_URL_TEMPLATE.format(
             src_lang=source_language, tgt_lang=target_language
         )
@@ -139,8 +141,8 @@ class CoVoST(Dataset):
             download_url(covost_url, self.root.as_posix(), hash_value=None)
         extract_archive(covost_archive.as_posix())
 
-        cv_tsv = load_df_from_tsv(cv_tsv_path)
-        covost_tsv = load_df_from_tsv(
+        cv_tsv = load_df_from_tsv(cv_tsv_path) ## src.tsv
+        covost_tsv = load_df_from_tsv( ## tgt.tsv ,联合读取，读取val中有中文的数据
             self.root / Path(covost_url).name.replace(".tar.gz", "")
         )
         df = pd.merge(
@@ -153,14 +155,15 @@ class CoVoST(Dataset):
             df = df[(df["split"] == split) | (df["split"] == f"{split}_covost")]
         else:
             df = df[df["split"] == split]
-        data = df.to_dict(orient="index").items()
+        data = df.to_dict(orient="index").items()  ## {"client_id","path","sentence","split","translation"}
         data = [v for k, v in sorted(data, key=lambda x: x[0])]
         self.data = []
         for e in data:
             try:
                 path = self.root / "clips" / e["path"]
-                _ = torchaudio.info(path.as_posix())
-                self.data.append(e)
+                # _ = torchaudio.info(path.as_posix())
+                if os.path.exists(path):
+                    self.data.append(e)
             except RuntimeError:
                 pass
 

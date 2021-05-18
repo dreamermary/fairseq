@@ -95,6 +95,7 @@ def main(corpus_root,split):
     with open(os.path.join(corpus_root,s,s+'.tsv'),'a',encoding='utf-8')as f:
         f.writelines(tsv)
 
+
 def prepare(corpus_root,split):
     for s in split:
         cutting_path = os.path.join(corpus_root,s,"cutting")
@@ -105,6 +106,19 @@ def prepare(corpus_root,split):
             open(trans_tsv_path,'w')
 
 SPLIT = ["train","dev","test"]
+
+CH_STOP_CHAR = '[·’!"\#$%&\'()＃！（）*+,-./:;<=>?\@，：?￥★、…．＞【】［］《》？“”‘’\[\\]^_`{|}~]+ZXCVBNMASDFGHJKLQWERTYUIOPzxcvbnmasdfghjklqwertyuiop'
+EN_STOP_CHAR = '[·’!"\#$%&\'()＃！（）*+,-./:;<=>?\@，：?￥★、…．＞【】［］《》？“”‘’\[\\]^_`{|}~]+'
+def toClearChText(path):
+    for li in open(path,encoding="utf-8").readlines():
+        li = li.strip()
+        item = json.loads(li)
+        src = item.get("sentence")
+        trg = item.get("translation")
+        src = re.sub(CH_STOP_CHAR, "", src)
+        
+
+
 
 
 if __name__ == '__main__':

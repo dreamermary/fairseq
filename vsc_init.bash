@@ -17,8 +17,8 @@ COVOST_ROOT=/content/drive/MyDrive/dataset/cv/root_v4/
 
 
 # aleady run
-pip3 uninstall numpy
-# cd /content/drive/MyDrive/git/fork/fairseq && pip3 install --editable ./
+pip uninstall numpy
+# cd /content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq && pip install --editable ./
 pip3 install pandas torchaudio soundfile sentencepiece debugpy numpy omegaconf
 apt install vim
 

@@ -6,6 +6,10 @@
 一键回到解放前
 git config --global user.name "dreamermary"
 git config --global user.email 1341584939@qq.com
+
+先去标点，后构词表
+
+：：
 ```
 
 ```bash
@@ -20,12 +24,12 @@ ST_SAVE_DIR=/content/drive/Shareddrives/mahouli249@gmail.com/lab/fairseq/bstc/st
 # preprocess :bstc style->covo style
 python3 -m example.speech_to_text.prep_bstc_data_1 -c ${BSTC_ROOT}
 # ch asr
-python3 -m example.speech_to_text.prep_bstc_data_2 \
+python -m examples.speech_to_text.prep_bstc_data_2 \
     --data-root ${BSTC_ROOT}  \
     --src-vocab-type char  --src-vocab-size 3000 \
     -s ch
 # ch-en st
-python3 -m example.speech_to_text.prep_bstc_data_2 \
+python3 -m examples.speech_to_text.prep_bstc_data_2 \
     --data-root ${BSTC_ROOT}  \
     --trg-vocab-type unigram  --trg-vocab-size 10000 \
     -s ch -t en

@@ -72,6 +72,7 @@ def process(args):
         print(f"Fetching split {split}...")
         dataset = BSTC(root, split)
         print("Extracting log mel filter bank features...")
+        
         for waveform, sample_rate, _, _, _, utt_id in tqdm(dataset):
             try:
                 extract_fbank_features(
@@ -112,7 +113,7 @@ def process(args):
         df = filter_manifest_df(df, is_train_split=is_train_split)
         save_df_to_tsv(df, root / f"{split}_{task}.tsv")
     # Generate vocab
-    vocab_type = args.src_voacb_type
+    vocab_type = args.src_vocab_type
     vocab_size = str(args.src_vocab_size)
     if args.tgt_lang is not None:
         vocab_type = args.trg_voacb_type
@@ -155,7 +156,7 @@ def main():
         type=str,
         choices=["bpe", "unigram", "char"],
     )
-     parser.add_argument(
+    parser.add_argument(
         "--trg-vocab-type",
         default="unigram",
         type=str,

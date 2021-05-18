@@ -3,6 +3,15 @@
 # @File    :   cutting_bstc.py
 # @Time    :   2021/4/21 10:26
 '''
+
+bstc/root
+    train
+        cutting 
+        wav
+        transcripts
+    dev
+
+
     clip
         ...wav
     train.tsv
@@ -57,7 +66,7 @@ def cut_wav(corpus_root,transcript_path,split):
             raise ValueError("File not found in %s" % wav_path)
         new_wav_path = os.path.join(corpus_root,split,"cutting", wav.replace(".wav", "_%s.wav" % idx))
 
-        # split_file(wav_path, new_wav_path, item.get("offset"), item.get("duration"))
+        split_file(wav_path, new_wav_path, item.get("offset"), item.get("duration"))
 
         translation = item.get("translation").strip().replace("\"","")
         transcript = item.get("transcript").strip().replace("\"","")
@@ -100,7 +109,7 @@ SPLIT = ["train","dev","test"]
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--corpus_root_path',default=r"/content/drive/MyDrive/dataset/bstc/root")
+    parser.add_argument('-c', '--corpus_root_path',default=r"/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root/")
     args = parser.parse_args()
 
     corpus_root = args.corpus_root_path

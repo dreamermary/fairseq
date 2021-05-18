@@ -2,13 +2,18 @@
 # BSTC
 ## Data Preparation
 
+```bash
+一键回到解放前
+git config --global user.name "dreamermary"
+git config --global user.email 1341584939@qq.com
+```
 
 ```bash
-export PYTHONPATH=/content/drive/MyDrive/git/fork/fairseq:$PYTHONPATH
-BSTC_ROOT=/content/drive/MyDrive/dataset/bstc/root/
-ASR_SAVE_DIR=/content/drive/MyDrive/fairseq/bstc/asr
+export PYTHONPATH=/content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq:$PYTHONPATH
+BSTC_ROOT=/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root/
+ASR_SAVE_DIR=/content/drive/Shareddrives/mahouli249@gmail.com/lab/fairseq/bstc/asr
 CHECKPOINT_FILENAME=avg_last_10_checkpoint.pt
-ST_SAVE_DIR=/content/drive/MyDrive/fairseq/bstc/st
+ST_SAVE_DIR=/content/drive/Shareddrives/mahouli249@gmail.com/lab/fairseq/bstc/st
 ```
 
 ```bash
@@ -17,12 +22,12 @@ python3 -m example.speech_to_text.prep_bstc_data_1 -c ${BSTC_ROOT}
 # ch asr
 python3 -m example.speech_to_text.prep_bstc_data_2 \
     --data-root ${BSTC_ROOT}  \
-    --vocab-type bpe  --vocab-size 10000 \
+    --src-vocab-type char  --src-vocab-size 3000 \
     -s ch
 # ch-en st
 python3 -m example.speech_to_text.prep_bstc_data_2 \
     --data-root ${BSTC_ROOT}  \
-    --vocab-type bpe  --vocab-size 10000 \
+    --trg-vocab-type unigram  --trg-vocab-size 10000 \
     -s ch -t en
 ```
 

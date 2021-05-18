@@ -112,16 +112,20 @@ def process(args):
         df = filter_manifest_df(df, is_train_split=is_train_split)
         save_df_to_tsv(df, root / f"{split}_{task}.tsv")
     # Generate vocab
-    vocab_size_str = "" if args.vocab_type == "char" else str(args.vocab_size)
-    spm_filename_prefix = f"spm_{args.vocab_type}{vocab_size_str}_{task}"
+    vocab_type = args.src_voacb_type
+    vocab_size = str(args.src_vocab_size)
+    if args.tgt_lang is not None:
+        vocab_type = args.trg_voacb_type
+        vocab_size = str(args.trg_vocab_size)
+    spm_filename_prefix = f"spm_{vocab_type}{vocab_size}_{task}"
     with NamedTemporaryFile(mode="w") as f:
         for t in train_text:
             f.write(t + "\n")
         gen_vocab(
             Path(f.name),
             root / spm_filename_prefix,
-            args.vocab_type,
-            args.vocab_size
+            vocab_type,
+            vocab_size
         )
     # Generate config YAML
     gen_config_yaml(
@@ -143,15 +147,22 @@ def main():
     parser.add_argument(
         "--data-root", "-d", type=str,
         help="data root with sub-folders for each language <root>/<src_lang>",
-        default=r"/content/drive/MyDrive/dataset/bstc/root"
+        default=r"/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root"
     )
     parser.add_argument(
-        "--vocab-type",
+        "--src-vocab-type",
+        default="char",
+        type=str,
+        choices=["bpe", "unigram", "char"],
+    )
+     parser.add_argument(
+        "--trg-vocab-type",
         default="unigram",
         type=str,
         choices=["bpe", "unigram", "char"],
-    ),
-    parser.add_argument("--vocab-size", default=10000, type=int)
+    )
+    parser.add_argument("--src-vocab-size", default=3000, type=int)
+    parser.add_argument("--trg-vocab-size", default=10000, type=int)
     parser.add_argument("--src-lang", "-s", type=str,default="ch")
     parser.add_argument("--tgt-lang", "-t", type=str)#,default="en"
     args = parser.parse_args()

@@ -1,7 +1,7 @@
 # need run in terminal
 # alias python=python3
 # alias pip3=pip3
-# export PYTHONPATH=/content/drive/MyDrive/git/fork/fairseq:$PYTHONPATH
+# export PYTHONPATH=/content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq:$PYTHONPATH
 
 # libri
 LS_ROOT=/content/drive/MyDrive/dataset/libri/root
@@ -17,8 +17,8 @@ COVOST_ROOT=/content/drive/MyDrive/dataset/cv/root_v4/
 
 
 # aleady run
-pip uninstall numpy
-# cd /content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq && pip install --editable ./
+pip3 uninstall numpy
+# cd /content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq && pip3 install --editable ./
 pip3 install pandas torchaudio soundfile sentencepiece debugpy numpy omegaconf
 apt install vim
 

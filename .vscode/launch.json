@@ -6,6 +6,8 @@
     "configurations": [
         
 
+        
+
         {
             "name": "PC-COVO-prep",
             "type": "python",
@@ -13,9 +15,9 @@
             // "program": "${file}",
             "module": "examples.speech_to_text.prep_covost_data",
             "console": "integratedTerminal",
-            "cwd": "/content/drive/MyDrive/git/fork/fairseq",//current work dir
+            "cwd": "/content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq",//current work dir
             "args": [
-               "--data-root","/content/drive/MyDrive/dataset/cv/root_v4_en/",
+               "--data-root","/content/drive/Shareddrives/mahouli249@gmail.com/dataset/cv/root_v4_en/",
                 "--vocab-type","char",
                 "--src-lang","en", 
                 "--tgt-lang","zh-CN"
@@ -28,7 +30,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "cwd": "/content/drive/MyDrive/git/fork/fairseq",//current work dir
+            "cwd": "/content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq",//current work dir
         },  
         {
             "name": "P-C-train-libri",
@@ -38,8 +40,8 @@
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",//current work dir
             "args":[
-                "/content/drive/MyDrive/dataset/libri/root",
-                "--save-dir","/content/drive/MyDrive/fairseq/s2t/libri/checkpoint_debug",
+                "/content/drive/Shareddrives/mahouli249@gmail.com/dataset/libri/root",
+                "--save-dir","/content/drive/Shareddrives/mahouli249@gmail.com/fairseq/s2t/libri/checkpoint_debug",
                 "--config-yaml","config.yaml", 
                 "--train-subset", "train-clean-100" ,
                 "--valid-subset", "test-clean",
@@ -78,7 +80,7 @@
             "cwd": "${workspaceFolder}",//current work dir
             "module": "examples.speech_to_text.prep_librispeech_data ",
             "args": [
-                "--output-root","/content/drive/MyDrive/dataset/libri/root",
+                "--output-root","/content/drive/Shareddrives/mahouli249@gmail.com/dataset/libri/root",
                 "--vocab-type","unigram",
                 "--vocab-size","10000"
             ]

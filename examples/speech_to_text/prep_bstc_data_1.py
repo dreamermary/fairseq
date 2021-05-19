@@ -32,6 +32,7 @@ import json
 
 # cut & write
 import os
+import re
 
 import soundfile
 
@@ -66,7 +67,7 @@ def cut_wav(corpus_root,transcript_path,split):
             raise ValueError("File not found in %s" % wav_path)
         new_wav_path = os.path.join(corpus_root,split,"cutting", wav.replace(".wav", "_%s.wav" % idx))
 
-        split_file(wav_path, new_wav_path, item.get("offset"), item.get("duration"))
+        # split_file(wav_path, new_wav_path, item.get("offset"), item.get("duration"))
 
         translation = item.get("translation").strip().replace("\"","")
         transcript = item.get("transcript").strip().replace("\"","")
@@ -92,7 +93,7 @@ def main(corpus_root,split):
                 transcript_path = os.path.join(transcript_root,name)
                 tt = cut_wav(corpus_root,transcript_path,split)
                 tsv += tt
-    with open(os.path.join(corpus_root,s,s+'.tsv'),'a',encoding='utf-8')as f:
+    with open(os.path.join(corpus_root,s,s+'.tsv'),'w',encoding='utf-8')as f:
         f.writelines(tsv)
 
 
@@ -106,31 +107,58 @@ def prepare(corpus_root,split):
             open(trans_tsv_path,'w')
 
 SPLIT = ["train","dev","test"]
-
-CH_STOP_CHAR = '[·’!"\#$%&\'()＃！（）*+,-./:;<=>?\@，：?￥★、…．＞【】［］《》？“”‘’\[\\]^_`{|}~]+ZXCVBNMASDFGHJKLQWERTYUIOPzxcvbnmasdfghjklqwertyuiop'
-EN_STOP_CHAR = '[·’!"\#$%&\'()＃！（）*+,-./:;<=>?\@，：?￥★、…．＞【】［］《》？“”‘’\[\\]^_`{|}~]+'
-def toClearChText(path):
+EN_STOP_CHAR="[+\.\!\/_,$%^*(+\"\']+|[+——！，。？、~@#￥%……&*（）:;：；‘’“”《》<>\?]"
+CH_STOP_CHAR="[+\.\!\/_,$%^*(+\"\']+|[+——！，。？、~@#￥%……&*（）:;：；‘’“”《》<>ZXCVBNMASDFGHJKLQWERTYUIOPzxcvbnmasdfghjklqwertyuiop\?]"
+def toClearText(path):
+    
+    tt = []
     for li in open(path,encoding="utf-8").readlines():
         li = li.strip()
-        item = json.loads(li)
+        try:
+            # item = json.loads(li)
+            item = eval(li)
+        except :
+            print(li)
+            
+            return
         src = item.get("sentence")
         trg = item.get("translation")
         src = re.sub(CH_STOP_CHAR, "", src)
+        trg = re.sub(EN_STOP_CHAR, "", trg)
         
+        d = {}
+        d["client_id"] = item.get('client_id')
+        d['path'] = item.get('path')
+        d['sentence']= src
+        d['split'] = item.get('split')
+        d['translation'] = trg
+
+        tt.append(str(d)+'\n')
+
+    with open(path,'w',encoding='utf-8')as f:
+        f.writelines(tt)
+        
+    
+    
 
 
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--corpus_root_path',default=r"/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root/")
-    args = parser.parse_args()
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('-c', '--corpus_root_path',default=r"/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root/")
+    # args = parser.parse_args()
 
-    corpus_root = args.corpus_root_path
-    split =  ['dev',"train"]#,
-    prepare(corpus_root,split)
-    for s in split:
-        main(corpus_root,s)
+    # corpus_root = args.corpus_root_path
+    # split =  ['dev',"train"]#,
+    # prepare(corpus_root,split)
+    # for s in split:
+    #     main(corpus_root,s)
+
+    traintsv = r'/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root/train/train.tsv'
+    devtsv = r'/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root/dev/dev.tsv'
+    toClearText(traintsv)
+    toClearText(devtsv)
 
 
 

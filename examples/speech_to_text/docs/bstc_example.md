@@ -30,7 +30,7 @@ python /content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq/examples/spe
 
 python3 -m example.speech_to_text.prep_bstc_data_1 -c ${BSTC_ROOT}
 # ch asr
-python3 -m examples.speech_to_text.prep_bstc_data_2 \
+python -m examples.speech_to_text.prep_bstc_data_2 \
     --data-root ${BSTC_ROOT}  \
     --src-vocab-type char  --src-vocab-size 3000 \
     -s ch

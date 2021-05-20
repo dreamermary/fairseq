@@ -74,6 +74,12 @@ def process(args):
         print("Extracting log mel filter bank features...")
         
         for waveform, sample_rate, _, _, _, utt_id in tqdm(dataset):
+            
+            # 文件已存在则不提取
+            output_path = feature_root / f"{utt_id}.npy"
+            if output_path is not None and output_path.is_file():
+                print(output_path)
+                continue
             try:
                 extract_fbank_features(
                     waveform, sample_rate, feature_root / f"{utt_id}.npy"

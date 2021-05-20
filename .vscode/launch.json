@@ -4,10 +4,23 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
-
-        
-
+        {
+            "name": "bstc-prep",
+            "type": "python",
+            "request": "launch",
+            // "program": "${file}",
+            "module": "examples.speech_to_text.prep_bstc_data_2",
+            "console": "integratedTerminal",
+            "cwd": "/content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq",//current work dir
+            "args": [
+               "--data-root","/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root/",
+                "--src-vocab-type","char",
+                "--src-vocab-size","3000",
+                "--src-lang","ch", 
+                
+            ]
+        },
+                
         {
             "name": "PC-COVO-prep",
             "type": "python",

@@ -9,7 +9,7 @@ git config --global user.email 1341584939@qq.com
 
 先去标点，后构词表
 
-：：
+
 ```
 
 ```bash
@@ -19,7 +19,7 @@ ASR_SAVE_DIR=/content/drive/Shareddrives/mahouli249@gmail.com/lab/fairseq/bstc/a
 CHECKPOINT_FILENAME=avg_last_10_checkpoint.pt
 ST_SAVE_DIR=/content/drive/Shareddrives/mahouli249@gmail.com/lab/fairseq/bstc/st
 ```
- 
+   
 ```bash
 # preprocess :bstc style->covo style
 python /content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq/examples/speech_to_text/prep_bstc_data_2.py \
@@ -28,9 +28,9 @@ python /content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq/examples/spe
     -s ch
 --------------------------------
 
-python3 -m example.speech_to_text.prep_bstc_data_1 -c ${BSTC_ROOT}
+python -m example.speech_to_text.prep_bstc_data_1 -c ${BSTC_ROOT}
 # ch asr
-python -m examples.speech_to_text.prep_bstc_data_2 \
+python3 -m examples.speech_to_text.prep_bstc_data_2 \
     --data-root ${BSTC_ROOT}  \
     --src-vocab-type char  --src-vocab-size 3000 \
     -s ch

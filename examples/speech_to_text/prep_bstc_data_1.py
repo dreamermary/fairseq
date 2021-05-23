@@ -67,7 +67,11 @@ def cut_wav(corpus_root,transcript_path,split):
             raise ValueError("File not found in %s" % wav_path)
         new_wav_path = os.path.join(corpus_root,split,"cutting", wav.replace(".wav", "_%s.wav" % idx))
 
-        # split_file(wav_path, new_wav_path, item.get("offset"), item.get("duration"))
+        if(os.path.exists(new_wav_path)):
+            pass
+        else:
+            print(new_wav_path)
+            split_file(wav_path, new_wav_path, item.get("offset"), item.get("duration"))
 
         translation = item.get("translation").strip().replace("\"","")
         transcript = item.get("transcript").strip().replace("\"","")
@@ -145,15 +149,15 @@ def toClearText(path):
 
 
 if __name__ == '__main__':
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('-c', '--corpus_root_path',default=r"/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root/")
-    # args = parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--corpus_root_path',default=r"/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root/")
+    args = parser.parse_args()
 
-    # corpus_root = args.corpus_root_path
-    # split =  ['dev',"train"]#,
-    # prepare(corpus_root,split)
-    # for s in split:
-    #     main(corpus_root,s)
+    corpus_root = args.corpus_root_path
+    split =  ['dev',"train"]#,
+    prepare(corpus_root,split)
+    for s in split:
+        main(corpus_root,s)
 
     traintsv = r'/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root/train/train.tsv'
     devtsv = r'/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root/dev/dev.tsv'

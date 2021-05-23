@@ -12,6 +12,7 @@ from typing import Optional, Tuple
 
 import pandas as pd
 import torchaudio
+import os
 from examples.speech_to_text.data_utils import (
     create_zip,
     extract_fbank_features,
@@ -46,17 +47,19 @@ class BSTC(Dataset):
         self, n: int
     ) -> Tuple[Tensor, int, str, str, Optional[str], str, str]:
         data = self.data[n]
-        # data = json.loads(data.strip())
         data = eval(data)
         path = self.root/self.split/'cutting'/data['path']
         # assert path.is_file()
         waveform, sample_rate = torchaudio.load(path)
+        ## waveform, sample_rate = 0,0
         sentence = data["sentence"]
         translation =  data["translation"]
         speaker_id = data["client_id"]
         _id = data["path"].replace(".wav", "")
         return waveform, sample_rate, sentence, translation, speaker_id, _id
 
+    def __len__(self) -> int:
+        return len(self.data)
 
 def process(args):
 
@@ -68,29 +71,36 @@ def process(args):
     # Extract features
     feature_root = root / "fbank80"
     feature_root.mkdir(exist_ok=True)
+
+    '''
     for split in SPLITS:
         print(f"Fetching split {split}...")
         dataset = BSTC(root, split)
         print("Extracting log mel filter bank features...")
-        
+
         for waveform, sample_rate, _, _, _, utt_id in tqdm(dataset):
-            
-            # 文件已存在则不提取
-            output_path = feature_root / f"{utt_id}.npy"
-            if output_path is not None and output_path.is_file():
-                print(output_path)
-                continue
             try:
+                # 文件已存在则不提取
+                output_path = feature_root / f"{utt_id}.npy"
+                if os.path.exists(output_path):
+                    continue
+            
                 extract_fbank_features(
                     waveform, sample_rate, feature_root / f"{utt_id}.npy"
-                )
+                ) # 音频小于xx秒提取失败
+                print(f"未压缩&未出错：{utt_id}")
             except:
+                print(f"出错{utt_id}")
                 err_utt_id.append(utt_id)
-              
+    print("%s all 出错 :%s"%(split,err_utt_id)) # train:
+    '''
+    
+    err_utt_id = ['4385_136', '4_167', '5_0', '5_3', '5_15', '5_18', '5_24', '5_54', '5_76', '5_87', '5_96', '5_122', '5_129', '5_132', '5_133', '5_136', '5_142', '5_157', '5_165', '5_171', '5_180', '5_186', '104_97', '100864_183']
+
     # Pack features into ZIP
     zip_path = root / "fbank80.zip"
     print("ZIPing features...")
-    create_zip(feature_root, zip_path)
+    # create_zip(feature_root, zip_path)
     print("Fetching ZIP manifest...")
     zip_manifest = get_zip_manifest(zip_path)
     # Generate TSV manifest

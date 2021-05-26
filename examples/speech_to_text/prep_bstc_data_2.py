@@ -2,7 +2,7 @@
 # @Author  :   clumba
 # @File    :   cutting_bstc.py
 # @Time    :   2021/4/21 10:26
-
+ 
 import argparse
 import logging
 from pathlib import Path
@@ -49,9 +49,14 @@ class BSTC(Dataset):
         data = self.data[n]
         data = eval(data)
         path = self.root/self.split/'cutting'/data['path']
-        # assert path.is_file()
+        assert path.is_file()
+        # waveform, sample_rate = '',0
+        # try:
+        #     waveform, sample_rate = torchaudio.load(path)
+        # except:
+        #     print(data["path"])
+        
         waveform, sample_rate = torchaudio.load(path)
-        ## waveform, sample_rate = 0,0
         sentence = data["sentence"]
         translation =  data["translation"]
         speaker_id = data["client_id"]
@@ -94,45 +99,67 @@ def process(args):
                 err_utt_id.append(utt_id)
     print("%s all 出错 :%s"%(split,err_utt_id)) # train:
     '''
-    
+     
     err_utt_id = ['4385_136', '4_167', '5_0', '5_3', '5_15', '5_18', '5_24', '5_54', '5_76', '5_87', '5_96', '5_122', '5_129', '5_132', '5_133', '5_136', '5_142', '5_157', '5_165', '5_171', '5_180', '5_186', '104_97', '100864_183']
-
+ 
     # Pack features into ZIP
     zip_path = root / "fbank80.zip"
     print("ZIPing features...")
     # create_zip(feature_root, zip_path)
     print("Fetching ZIP manifest...")
-    zip_manifest = get_zip_manifest(zip_path)
+    # zip_manifest = get_zip_manifest(zip_path)
     # Generate TSV manifest
     print("Generating manifest...")
     train_text = []
     task = f"asr_{args.src_lang}"
     if args.tgt_lang is not None:
         task = f"st_{args.src_lang}_{args.tgt_lang}"
-    for split in SPLITS:
-        manifest = {c: [] for c in MANIFEST_COLUMNS}
-        dataset = BSTC(root, split)
-        for wav, sr, src_utt, tgt_utt, speaker_id, utt_id in tqdm(dataset):
-            if utt_id in err_utt_id:
-                continue
-            manifest["audio"].append(zip_manifest[utt_id])
-            manifest["id"].append(utt_id)
+
+    # err_mainfest_id = []
+    # for split in SPLITS:
+    #     manifest = {c: [] for c in MANIFEST_COLUMNS}
+    #     dataset = BSTC(root, split)
+    #     for wav, sr, src_utt, tgt_utt, speaker_id, utt_id in tqdm(dataset):
+    #         if utt_id in err_utt_id:
+    #             continue
+    #         try :
+    #             manifest["audio"].append(zip_manifest[utt_id])
+    #         except:
+    #             err_mainfest_id.append(utt_id)
+    #             print(utt_id)
+    #             continue
+    #         manifest["id"].append(utt_id)
             
-            duration_ms = int(wav.size(1) / sr * 1000)
-            manifest["n_frames"].append(int(1 + (duration_ms - 25) / 10))
-            manifest["tgt_text"].append(src_utt if args.tgt_lang is None else tgt_utt)
-            manifest["speaker"].append(speaker_id)
-        is_train_split = split.startswith("train")
-        if is_train_split:
-            train_text.extend(manifest["tgt_text"])
-        df = pd.DataFrame.from_dict(manifest)
-        df = filter_manifest_df(df, is_train_split=is_train_split)
-        save_df_to_tsv(df, root / f"{split}_{task}.tsv")
+    #         duration_ms = int(wav.size(1) / sr * 1000)
+    #         manifest["n_frames"].append(int(1 + (duration_ms - 25) / 10))
+    #         manifest["tgt_text"].append(src_utt if args.tgt_lang is None else tgt_utt)
+    #         manifest["speaker"].append(speaker_id)
+    #     is_train_split = split.startswith("train")
+    #     if is_train_split:
+    #         train_text.extend(manifest["tgt_text"])
+    #     df = pd.DataFrame.from_dict(manifest)
+    #     df = filter_manifest_df(df, is_train_split=is_train_split)
+    #     save_df_to_tsv(df, root / f"{split}_{task}.tsv")
+    
+    # print(err_mainfest_id) # 6205,7174
+    
+    ##----
+    train_text = []
+    filename = os.path.join('/content/drive/MyDrive/dataset/bstc/root','train_st_ch_en.tsv')
+
+    with open(filename) as f:
+        ls = f.readlines()
+        for l in ls:
+            train_text.append((str(l)).split('\t')[3])
+    train_text = train_text[1:]
+
+
+
     # Generate vocab
     vocab_type = args.src_vocab_type
     vocab_size = str(args.src_vocab_size)
     if args.tgt_lang is not None:
-        vocab_type = args.trg_voacb_type
+        vocab_type = args.trg_vocab_type
         vocab_size = str(args.trg_vocab_size)
     spm_filename_prefix = f"spm_{vocab_type}{vocab_size}_{task}"
     with NamedTemporaryFile(mode="w") as f:
@@ -156,7 +183,7 @@ def process(args):
 
     print("%s:%s"%(split,err_utt_id)) # train:
     '''
-    ['4385_136', '5_0', '5_3', '5_15', '5_18', '5_24', '5_54', '5_76', '5_87', '5_96', '5_122', '5_129', '5_132', '5_133', ...]
+    ['4385_136', '4_167', '5_0', '5_3', '5_15', '5_18', '5_24', '5_54', '5_76', '5_87', '5_96', '5_122', '5_129', '5_132', '5_133', '5_136', '5_142', '5_157', '5_165', '5_171', '5_180', '5_186', '104_97', '100864_183']
     '''
 
 def main():

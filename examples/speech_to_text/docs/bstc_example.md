@@ -2,48 +2,62 @@
 # BSTC
 ## Data Preparation
 
+### 1. prepare
 ```bash
-一键回到解放前
+一键回到解放前 
+# config
 git config --global user.name "dreamermary"
 git config --global user.email 1341584939@qq.com
+git remote add origin https://github.com/dreamermary/fairseq.git
 
-先去标点，后构词表
-
-
+# prepare
+pip uninstall -y numpy
+pip install pandas torchaudio soundfile sentencepiece debugpy numpy omegaconf --editable ./
+apt install vim screen
 ```
-
 ```bash
+# MyDrive:
+DriveRoot=/content/drive/MyDrive
+export PYTHONPATH=/content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq:$PYTHONPATH
+BSTC_ROOT=$DriveRoot/dataset/bstc/root/
+ASR_SAVE_DIR=$DriveRoot/exp/fairseq/bstc/asr
+CHECKPOINT_FILENAME=avg_last_10_checkpoint.pt
+ST_SAVE_DIR=$DriveRoot/exp/fairseq/bstc/st
+
+# ShareDrive:
 export PYTHONPATH=/content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq:$PYTHONPATH
 BSTC_ROOT=/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root/
-ASR_SAVE_DIR=/content/drive/Shareddrives/mahouli249@gmail.com/lab/fairseq/bstc/asr
+ASR_SAVE_DIR=/content/drive/Shareddrives/mahouli249@gmail.com/exp/fairseq/bstc/asr
 CHECKPOINT_FILENAME=avg_last_10_checkpoint.pt
-ST_SAVE_DIR=/content/drive/Shareddrives/mahouli249@gmail.com/lab/fairseq/bstc/st
+ST_SAVE_DIR=/content/drive/Shareddrives/mahouli249@gmail.com/exp/fairseq/bstc/st
 ```
-   
+
+### 2. preprocess
 ```bash
 # preprocess :bstc style->covo style
-python /content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq/examples/speech_to_text/prep_bstc_data_2.py \
-    --data-root ${BSTC_ROOT}  \
-    --src-vocab-type char  --src-vocab-size 3000 \
-    -s ch
---------------------------------
+python -m examples.speech_to_text.prep_bstc_data_1 -c ${BSTC_ROOT}
 
-python -m example.speech_to_text.prep_bstc_data_1 -c ${BSTC_ROOT}
 # ch asr
-python3 -m examples.speech_to_text.prep_bstc_data_2 \
+python -m examples.speech_to_text.prep_bstc_data_2 \
     --data-root ${BSTC_ROOT}  \
     --src-vocab-type char  --src-vocab-size 3000 \
     -s ch
 # ch-en st
-python3 -m examples.speech_to_text.prep_bstc_data_2 \
+python -m examples.speech_to_text.prep_bstc_data_2 \
     --data-root ${BSTC_ROOT}  \
     --trg-vocab-type unigram  --trg-vocab-size 10000 \
     -s ch -t en
+
+
+# ps:
+#code path
+/content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq
+#dataset path 
+
 ```
 
-## ASR
-
-#### Train
+### 3.train
+#### Train - ASR
 ```bash
 fairseq-train ${BSTC_ROOT} \
   --config-yaml config_asr_ch.yaml --train-subset train_asr_ch \
@@ -74,8 +88,8 @@ fairseq-generate ${BSTC_ROOT} \
 
 ```
 
-## ST
-#### Training
+### 3.train
+#### Train - ST
 ```bash
 
 fairseq-train ${BSTC_ROOT} \
@@ -100,7 +114,7 @@ fairseq-generate ${BSTC_ROOT} \
   --max-tokens 50000 --beam 5 --scoring sacrebleu
 ```
 
-#### Interactive Decoding
+### 4.Interactive Decoding
 ```bash
 fairseq-interactive ${BSTC_ROOT} --config-yaml config_st_ch_en.yaml \
   --task speech_to_text --path ${SAVE_DIR}/${CHECKPOINT_FILENAME} \

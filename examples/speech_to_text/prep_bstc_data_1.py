@@ -70,7 +70,7 @@ def cut_wav(corpus_root,transcript_path,split):
         if(os.path.exists(new_wav_path)):
             pass
         else:
-            print(new_wav_path)
+            # print(new_wav_path)
             split_file(wav_path, new_wav_path, item.get("offset"), item.get("duration"))
 
         translation = item.get("translation").strip().replace("\"","")
@@ -129,6 +129,9 @@ def toClearText(path):
         trg = item.get("translation")
         src = re.sub(CH_STOP_CHAR, "", src)
         trg = re.sub(EN_STOP_CHAR, "", trg)
+
+        # 小写
+        trg = str.lower(trg)
         
         d = {}
         d["client_id"] = item.get('client_id')
@@ -141,28 +144,32 @@ def toClearText(path):
 
     with open(path,'w',encoding='utf-8')as f:
         f.writelines(tt)
-        
-    
-    
+ 
 
 
 
-
+import os
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--corpus_root_path',default=r"/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root/")
+    parser.add_argument('-c', '--corpus_root_path')#default=r"/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root"
     args = parser.parse_args()
 
     corpus_root = args.corpus_root_path
-    split =  ['dev',"train"]#,
-    prepare(corpus_root,split)
-    for s in split:
-        main(corpus_root,s)
+    # split =  ['dev',"train"]#,
+    # prepare(corpus_root,split)
+    # for s in split:
+    #     main(corpus_root,s)
 
-    traintsv = r'/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root/train/train.tsv'
-    devtsv = r'/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root/dev/dev.tsv'
+
+    # 1.去标点
+    traintsv = os.path.join(corpus_root,'train/train.tsv')
+    devtsv = os.path.join(corpus_root,'dev/dev.tsv')
+    # traintsv = r'/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root/train/train.tsv'
+    # devtsv = r'/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root/dev/dev.tsv'
     toClearText(traintsv)
     toClearText(devtsv)
+
+    # 2.小写字母 
 
 
 

@@ -107,11 +107,18 @@ def create_zip(data_root: Path, zip_path: Path):
 def is_npy_data(data: bytes) -> bool:
     return data[0] == 147 and data[1] == 78
 
-
+import time
 def get_zip_manifest(zip_path: Path, zip_root: Optional[Path] = None):
     _zip_path = zip_path if zip_root is None else Path.joinpath(zip_root, zip_path)
     with zipfile.ZipFile(_zip_path, mode="r") as f:
         info = f.infolist()
+    
+    # length = len(info) // 10
+    # for idx in range(10):
+    #     subinfo = info[idx*length:(idx+1)*length]
+
+    #     time.sleep(60*5) //休息5分钟
+
     manifest = {}
     for i in tqdm(info):
         utt_id = Path(i.filename).stem

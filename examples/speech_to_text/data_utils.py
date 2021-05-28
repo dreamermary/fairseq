@@ -48,7 +48,7 @@ def gen_vocab(
         _special_symbols = ",".join(special_symbols)
         arguments.append(f"--user_defined_symbols={_special_symbols}")
     sp.SentencePieceTrainer.Train(" ".join(arguments))
-    # Export fairseq dictionary
+    # Export fairseq dictionary---------------------------------
     spm = sp.SentencePieceProcessor()
     spm.Load(output_path_prefix.as_posix() + ".model")
     vocab = {i: spm.IdToPiece(i) for i in range(spm.GetPieceSize())}
@@ -112,12 +112,6 @@ def get_zip_manifest(zip_path: Path, zip_root: Optional[Path] = None):
     _zip_path = zip_path if zip_root is None else Path.joinpath(zip_root, zip_path)
     with zipfile.ZipFile(_zip_path, mode="r") as f:
         info = f.infolist()
-    
-    # length = len(info) // 10
-    # for idx in range(10):
-    #     subinfo = info[idx*length:(idx+1)*length]
-
-    #     time.sleep(60*5) //休息5分钟
 
     manifest = {}
     for i in tqdm(info):

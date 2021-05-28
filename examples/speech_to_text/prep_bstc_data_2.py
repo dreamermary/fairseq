@@ -50,18 +50,14 @@ class BSTC(Dataset):
         data = eval(data)
         path = self.root/self.split/'cutting'/data['path']
         assert path.is_file()
-        # waveform, sample_rate = '',0
-        # try:
-        #     waveform, sample_rate = torchaudio.load(path)
-        # except:
-        #     print(data["path"])
+        
         
         waveform, sample_rate = torchaudio.load(path)
         sentence = data["sentence"]
         translation =  data["translation"]
         speaker_id = data["client_id"]
         _id = data["path"].replace(".wav", "")
-        return waveform, sample_rate, sentence, translation, speaker_id, _id
+        return waveform, sample_rate, sentence, translation, speaker_id, _id # 16k
 
     def __len__(self) -> int:
         return len(self.data)
@@ -77,37 +73,31 @@ def process(args):
     feature_root = root / "fbank80"
     feature_root.mkdir(exist_ok=True)
 
-    '''
+    
     for split in SPLITS:
         print(f"Fetching split {split}...")
         dataset = BSTC(root, split)
         print("Extracting log mel filter bank features...")
-
+    
         for waveform, sample_rate, _, _, _, utt_id in tqdm(dataset):
             try:
-                # 文件已存在则不提取
-                output_path = feature_root / f"{utt_id}.npy"
-                if os.path.exists(output_path):
-                    continue
-            
                 extract_fbank_features(
-                    waveform, sample_rate, feature_root / f"{utt_id}.npy"
-                ) # 音频小于xx秒提取失败
-                print(f"未压缩&未出错：{utt_id}")
+                        waveform, sample_rate, feature_root / f"{utt_id}.npy"
+                    ) 
             except:
                 print(f"出错{utt_id}")
                 err_utt_id.append(utt_id)
-    print("%s all 出错 :%s"%(split,err_utt_id)) # train:
-    '''
+        print("%s all 出错 :%s"%(split,err_utt_id)) # train:
+   
      
-    err_utt_id = ['4385_136', '4_167', '5_0', '5_3', '5_15', '5_18', '5_24', '5_54', '5_76', '5_87', '5_96', '5_122', '5_129', '5_132', '5_133', '5_136', '5_142', '5_157', '5_165', '5_171', '5_180', '5_186', '104_97', '100864_183']
+    # err_utt_id = ['4385_136', '4_167', '5_0', '5_3', '5_15', '5_18', '5_24', '5_54', '5_76', '5_87', '5_96', '5_122', '5_129', '5_132', '5_133', '5_136', '5_142', '5_157', '5_165', '5_171', '5_180', '5_186', '104_97', '100864_183']
  
-    # Pack features into ZIP
+    # # Pack features into ZIP
     zip_path = root / "fbank80.zip"
-    print("ZIPing features...")
-    # create_zip(feature_root, zip_path)
-    print("Fetching ZIP manifest...")
-    # zip_manifest = get_zip_manifest(zip_path)
+    # print("ZIPing features...")
+    create_zip(feature_root, zip_path)
+    # print("Fetching ZIP manifest...")
+    zip_manifest = get_zip_manifest(zip_path)
     # Generate TSV manifest
     print("Generating manifest...")
     train_text = []
@@ -115,46 +105,44 @@ def process(args):
     if args.tgt_lang is not None:
         task = f"st_{args.src_lang}_{args.tgt_lang}"
 
-    # err_mainfest_id = []
-    # for split in SPLITS:
-    #     manifest = {c: [] for c in MANIFEST_COLUMNS}
-    #     dataset = BSTC(root, split)
-    #     for wav, sr, src_utt, tgt_utt, speaker_id, utt_id in tqdm(dataset):
-    #         if utt_id in err_utt_id:
-    #             continue
-    #         try :
-    #             manifest["audio"].append(zip_manifest[utt_id])
-    #         except:
-    #             err_mainfest_id.append(utt_id)
-    #             print(utt_id)
-    #             continue
-    #         manifest["id"].append(utt_id)
+    
+    for split in SPLITS:
+        manifest = {c: [] for c in MANIFEST_COLUMNS}
+        dataset = BSTC(root, split)
+        for wav, sr, src_utt, tgt_utt, speaker_id, utt_id in tqdm(dataset):
+            if utt_id in err_utt_id:
+                continue
             
-    #         duration_ms = int(wav.size(1) / sr * 1000)
-    #         manifest["n_frames"].append(int(1 + (duration_ms - 25) / 10))
-    #         manifest["tgt_text"].append(src_utt if args.tgt_lang is None else tgt_utt)
-    #         manifest["speaker"].append(speaker_id)
-    #     is_train_split = split.startswith("train")
-    #     if is_train_split:
-    #         train_text.extend(manifest["tgt_text"])
-    #     df = pd.DataFrame.from_dict(manifest)
-    #     df = filter_manifest_df(df, is_train_split=is_train_split)
-    #     save_df_to_tsv(df, root / f"{split}_{task}.tsv")
+            manifest["audio"].append(zip_manifest[utt_id])
+            manifest["id"].append(utt_id)            
+            duration_ms = int(wav.size(1) / sr * 1000)
+            manifest["n_frames"].append(int(1 + (duration_ms - 25) / 10))
+            manifest["tgt_text"].append(src_utt if args.tgt_lang is None else tgt_utt)
+            manifest["speaker"].append(speaker_id)
+        is_train_split = split.startswith("train")
+        if is_train_split:
+            train_text.extend(manifest["tgt_text"])
+        df = pd.DataFrame.from_dict(manifest)
+        df = filter_manifest_df(df, is_train_split=is_train_split)
+        save_df_to_tsv(df, root / f"{split}_{task}.tsv")
     
     # print(err_mainfest_id) # 6205,7174
     
     ##----
-    train_text = []
-    filename = os.path.join('/content/drive/MyDrive/dataset/bstc/root','train_st_ch_en.tsv')
+    # train_text = []
+    # filename = ''
+    # filename = os.path.join(root,'train_asr_ch.tsv')
+    # if args.tgt_lang is not None:
+    #     filename = os.path.join(root,'train_st_ch_en.tsv')
 
-    with open(filename) as f:
-        ls = f.readlines()
-        for l in ls:
-            train_text.append((str(l)).split('\t')[3])
-    train_text = train_text[1:]
+    # with open(filename) as f:
+    #     ls = f.readlines()
+    #     for l in ls:
+    #         train_text.append((str(l)).split('\t')[3])
+    # train_text = train_text[1:]
 
 
-
+ 
     # Generate vocab
     vocab_type = args.src_vocab_type
     vocab_size = str(args.src_vocab_size)
@@ -178,10 +166,10 @@ def process(args):
         yaml_filename=f"config_{task}.yaml",
         specaugment_policy="lb",
     )
-    # Clean up
-    # shutil.rmtree(feature_root)
+    # # Clean up
+    # # shutil.rmtree(feature_root)
 
-    print("%s:%s"%(split,err_utt_id)) # train:
+    # print("%s:%s"%(split,err_utt_id)) # train:
     '''
     ['4385_136', '4_167', '5_0', '5_3', '5_15', '5_18', '5_24', '5_54', '5_76', '5_87', '5_96', '5_122', '5_129', '5_132', '5_133', '5_136', '5_142', '5_157', '5_165', '5_171', '5_180', '5_186', '104_97', '100864_183']
     '''

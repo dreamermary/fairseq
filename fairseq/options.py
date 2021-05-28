@@ -134,6 +134,11 @@ def parse_args_and_arch(
             # arguments or which have default values.
             argument_default=argparse.SUPPRESS,
         )
+        
+        # print(ARCH_MODEL_REGISTRY)
+        # print(MODEL_REGISTRY)
+        # print(args.arch)
+
         if args.arch in ARCH_MODEL_REGISTRY:
             ARCH_MODEL_REGISTRY[args.arch].add_args(model_specific_group)
         elif args.arch in MODEL_REGISTRY:

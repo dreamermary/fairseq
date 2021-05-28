@@ -1,8 +1,8 @@
 
 # BSTC
-## Data Preparation
+### 1.Data Preparation
 
-### 1. prepare
+#### prepare
 ```bash
 一键回到解放前 
 # config
@@ -15,8 +15,10 @@ pip uninstall -y numpy
 pip install pandas torchaudio soundfile sentencepiece debugpy numpy omegaconf --editable ./
 apt install vim screen
 ```
+
+
 ```bash
-# MyDrive:
+# MyDrive
 DriveRoot=/content/drive/MyDrive
 export PYTHONPATH=/content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq:$PYTHONPATH
 BSTC_ROOT=$DriveRoot/dataset/bstc/root/
@@ -24,21 +26,29 @@ ASR_SAVE_DIR=$DriveRoot/exp/fairseq/bstc/asr
 CHECKPOINT_FILENAME=avg_last_10_checkpoint.pt
 ST_SAVE_DIR=$DriveRoot/exp/fairseq/bstc/st
 
-# ShareDrive:
+# ShareDrive - transformer:
 export PYTHONPATH=/content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq:$PYTHONPATH
 BSTC_ROOT=/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root/
 ASR_SAVE_DIR=/content/drive/Shareddrives/mahouli249@gmail.com/exp/fairseq/bstc/asr
-CHECKPOINT_FILENAME=avg_last_10_checkpoint.pt
 ST_SAVE_DIR=/content/drive/Shareddrives/mahouli249@gmail.com/exp/fairseq/bstc/st
+CHECKPOINT_FILENAME=avg_last_10_checkpoint.pt
+
+# ShareDrive - :
+export PYTHONPATH=/content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq:$PYTHONPATH
+BSTC_ROOT=/content/drive/Shareddrives/mahouli249@gmail.com/dataset/bstc/root/
+ASR_SAVE_DIR=/content/drive/Shareddrives/mahouli249@gmail.com/exp/fairseq/bstc2/asr
+ST_SAVE_DIR=/content/drive/Shareddrives/mahouli249@gmail.com/exp/fairseq/bstc2/st
+CHECKPOINT_FILENAME=avg_last_10_checkpoint.pt
 ```
 
-### 2. preprocess
+#### preprocess
 ```bash
 # preprocess :bstc style->covo style
 python -m examples.speech_to_text.prep_bstc_data_1 -c ${BSTC_ROOT}
 
 # ch asr
-python -m examples.speech_to_text.prep_bstc_data_2 \
+python -m debugpy --listen 0.0.0.0:5678 ./examples/speech_to_text/prep_bstc_data_2.py     --data-root ${BSTC_ROOT}      --src-vocab-type char  --src-vocab-size 3000     -s ch
+python3 -m examples.speech_to_text.prep_bstc_data_2 \
     --data-root ${BSTC_ROOT}  \
     --src-vocab-type char  --src-vocab-size 3000 \
     -s ch
@@ -59,9 +69,12 @@ python -m examples.speech_to_text.prep_bstc_data_2 \
 ### 3.train
 #### Train - ASR
 ```bash
+## 注意dict.txt
+## cd $BSTC_ROOT && rm dict.txt && cp spm_char3000_asr_ch.txt dict.txt
+
 fairseq-train ${BSTC_ROOT} \
   --config-yaml config_asr_ch.yaml --train-subset train_asr_ch \
-  --valid-subset dev_asr_ch --save-dir ${ASR_SAVE_DIR} 
+  --valid-subset dev_asr_ch --save-dir ${ASR_SAVE_DIR} \
   --num-workers 4 --max-tokens 40000 \
   --max-update 60000 --task speech_to_text \
   --criterion label_smoothed_cross_entropy --report-accuracy \
@@ -70,7 +83,9 @@ fairseq-train ${BSTC_ROOT} \
   --warmup-updates 10000 --clip-norm 10.0 \
   --seed 1 --update-freq 8 \
   --max-epoch 10
-
+  
+  #s2t_transformer_s
+#s2t_berard_256_3_3
 ```
 
 #### Inference & Evaluation
@@ -85,12 +100,13 @@ fairseq-generate ${BSTC_ROOT} \
   --path ${ASR_SAVE_DIR}/${CHECKPOINT_FILENAME} --max-tokens 50000 --beam 5 \
   --scoring wer --wer-tokenizer 13a --wer-lowercase --wer-remove-punct
 
-
 ```
 
 ### 3.train
 #### Train - ST
 ```bash
+## 注意dict.txt
+## cd $BSTC_ROOT && rm dict.txt && cp spm_unigram10000_st_ch_en.txt dict.txt
 
 fairseq-train ${BSTC_ROOT} \
   --config-yaml config_st_ch_en.yaml --train-subset train_st_ch_en --valid-subset dev_st_ch_en \
@@ -116,8 +132,19 @@ fairseq-generate ${BSTC_ROOT} \
 
 ### 4.Interactive Decoding
 ```bash
+/content/drive/MyDrive/dataset/bstc/root/train/cutting/4_0.wav
+/content/drive/MyDrive/dataset/bstc/root/train/cutting/102534_195.wav
+
+# asr
+fairseq-interactive ${BSTC_ROOT} --config-yaml config_asr_ch.yaml --task speech_to_text \
+  --path ${ASR_SAVE_DIR}/${CHECKPOINT_FILENAME} --max-tokens 50000 --beam 5
+
+fairseq-interactive ${BSTC_ROOT} --config-yaml config_asr_ch.yaml --task speech_to_text \
+  --path ${ASR_SAVE_DIR}/avg_last_10_checkpoint.pt --max-tokens 50000 --beam 5
+
+# st
 fairseq-interactive ${BSTC_ROOT} --config-yaml config_st_ch_en.yaml \
-  --task speech_to_text --path ${SAVE_DIR}/${CHECKPOINT_FILENAME} \
+  --task speech_to_text --path ${ST_SAVE_DIR}/${CHECKPOINT_FILENAME} \
   --max-tokens 50000 --beam 5
 ```
 

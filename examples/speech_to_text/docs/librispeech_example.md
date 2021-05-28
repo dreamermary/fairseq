@@ -5,13 +5,29 @@
 benchmark. We provide competitive
 vanilla [Transformer](https://papers.nips.cc/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf) baselines.
 
+## Preparation
+```bash
+# ShareDrive
+export PYTHONPATH=/content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq:$PYTHONPATH
+DriveRoot=/content/drive/Shareddrives/mahouli249@gmail.com
+LS_ROOT=/content/drive/Shareddrives/mahouli249@gmail.com/dataset/libri/root/
+
+# MyDrive
+export PYTHONPATH=/content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq:$PYTHONPATH
+DriveRoot=/content/drive/MyDrive
+LS_ROOT=$DriveRoot/dataset/libri/root/
+LS_SAVE_DIR=$DriveRoot/exp/fairseq/libri/asr
+
+
+```
+
 ## Data preparation
 Download and preprocess LibriSpeech data with
 ```bash
 # additional Python packages for S2T data processing/model training
 pip install pandas torchaudio sentencepiece
 
-python3 -m examples.speech_to_text./prep_librispeech_data \
+python -m examples.speech_to_text.prep_librispeech_data \
   --output-root ${LS_ROOT} --vocab-type unigram --vocab-size 10000
 ```
 where `LS_ROOT` is the root path for downloaded data as well as generated files (manifest, features, vocabulary and
@@ -22,16 +38,16 @@ if you want to use our pre-trained models.
 
 ## Training
 ```bash
-fairseq-train ${LS_ROOT} --save-dir ${SAVE_DIR} \
-  --config-yaml config.yaml --train-subset train-clean-100 --valid-subset test-clean \
+fairseq-train ${LS_ROOT} --save-dir ${LS_SAVE_DIR} \
+  --config-yaml config.yaml --train-subset train-clean-100 --valid-subset dev-clean \
   --num-workers 4 --max-tokens 40000 --max-update 300000 \
   --task speech_to_text --criterion label_smoothed_cross_entropy --report-accuracy \
   --arch s2t_transformer_s --share-decoder-input-output-embed \
   --optimizer adam --lr 2e-3 --lr-scheduler inverse_sqrt --warmup-updates 10000 \
   --clip-norm 10.0 --seed 1 --update-freq 8 \
-  --max-epoch 10
+  --max-epoch 20
 ```
-where `SAVE_DIR` is the checkpoint root path. Here we use `--arch s2t_transformer_s` (31M parameters) as example.
+where `LS_SAVE_DIR` is the checkpoint root path. Here we use `--arch s2t_transformer_s` (31M parameters) as example.
 For better performance, you may switch to `s2t_transformer_m` (71M, with `--lr 1e-3`) or `s2t_transformer_l`
 (268M, with `--lr 5e-4`). We set `--update-freq 8` to simulate 8 GPUs with 1 GPU. You may want to update it accordingly
 when using more than 1 GPU.
@@ -41,21 +57,21 @@ Average the last 10 checkpoints and evaluate on the 4 splits
 (`dev-clean`, `dev-other`, `test-clean` and `test-other`):
 ```bash
 CHECKPOINT_FILENAME=avg_last_10_checkpoint.pt
-python scripts/average_checkpoints.py --inputs ${SAVE_DIR} \
+python3 scripts/average_checkpoints.py --inputs ${LS_SAVE_DIR} \
   --num-epoch-checkpoints 10 \
-  --output "${SAVE_DIR}/${CHECKPOINT_FILENAME}"
-for SUBSET in dev-clean dev-other test-clean test-other; do
-  fairseq-generate ${LS_ROOT} --config-yaml config.yaml --gen-subset ${SUBSET} \
-    --task speech_to_text --path ${SAVE_DIR}/${CHECKPOINT_FILENAME} \
-    --max-tokens 50000 --beam 5 --scoring wer
-done
+  --output "${LS_SAVE_DIR}/${CHECKPOINT_FILENAME}"
+
+fairseq-generate ${LS_ROOT} --config-yaml config.yaml --gen-subset dev-clean \
+  --task speech_to_text --path ${LS_SAVE_DIR}/${CHECKPOINT_FILENAME} \
+  --max-tokens 50000 --beam 5 --scoring wer
+
 ```
 
 ## Interactive Decoding
 Launch the interactive console via
 ```bash
 fairseq-interactive ${LS_ROOT} --config-yaml config.yaml --task speech_to_text \
-  --path ${SAVE_DIR}/${CHECKPOINT_FILENAME} --max-tokens 50000 --beam 5
+  --path ${LS_SAVE_DIR}/${CHECKPOINT_FILENAME} --max-tokens 50000 --beam 5
 ```
 Type in WAV/FLAC/OGG audio paths (one per line) after the prompt.
 

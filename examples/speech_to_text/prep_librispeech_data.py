@@ -27,12 +27,12 @@ log = logging.getLogger(__name__)
 
 SPLITS = [
     "train-clean-100",
-    "train-clean-360",
-    "train-other-500",
+    # "train-clean-360",
+    # "train-other-500",
     "dev-clean",
-    "dev-other",
-    "test-clean",
-    "test-other",
+    # "dev-other",
+    # "test-clean",
+    # "test-other",
 ]
 
 MANIFEST_COLUMNS = ["id", "audio", "n_frames", "tgt_text", "speaker"]
@@ -95,7 +95,7 @@ def process(args):
         out_root, spm_filename_prefix + ".model", specaugment_policy="ld"
     )
     # Clean up
-    shutil.rmtree(feature_root)
+    # shutil.rmtree(feature_root)
 
 
 def main():
@@ -110,6 +110,8 @@ def main():
     ),
     parser.add_argument("--vocab-size", default=10000, type=int)
     args = parser.parse_args()
+
+    print(args.output_root)
 
     process(args)
 

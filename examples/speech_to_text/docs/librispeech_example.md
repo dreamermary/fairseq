@@ -17,6 +17,7 @@ export PYTHONPATH=/content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq:$
 DriveRoot=/content/drive/MyDrive
 LS_ROOT=$DriveRoot/dataset/libri/root/
 LS_SAVE_DIR=$DriveRoot/exp/fairseq/libri/asr
+CHECKPOINT_FILENAME=avg_last_10_checkpoint.pt
 
 
 ```
@@ -61,6 +62,10 @@ python3 scripts/average_checkpoints.py --inputs ${LS_SAVE_DIR} \
   --num-epoch-checkpoints 10 \
   --output "${LS_SAVE_DIR}/${CHECKPOINT_FILENAME}"
 
+
+LS_ROOT=/content/drive/MyDrive/dataset/libri/root/
+LS_SAVE_DIR=/content/drive/MyDrive/exp/fairseq/libri/asr
+CHECKPOINT_FILENAME=avg_last_10_checkpoint.pt
 fairseq-generate ${LS_ROOT} --config-yaml config.yaml --gen-subset dev-clean \
   --task speech_to_text --path ${LS_SAVE_DIR}/${CHECKPOINT_FILENAME} \
   --max-tokens 50000 --beam 5 --scoring wer
@@ -70,6 +75,8 @@ fairseq-generate ${LS_ROOT} --config-yaml config.yaml --gen-subset dev-clean \
 ## Interactive Decoding
 Launch the interactive console via
 ```bash
+/content/drive/MyDrive/dataset/my_test/en/cq_30.flac
+/content/drive/MyDrive/dataset/libri/root/LibriSpeech/dev-clean/8842/304647/8842-304647-0013.flac
 fairseq-interactive ${LS_ROOT} --config-yaml config.yaml --task speech_to_text \
   --path ${LS_SAVE_DIR}/${CHECKPOINT_FILENAME} --max-tokens 50000 --beam 5
 ```

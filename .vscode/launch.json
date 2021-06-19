@@ -5,6 +5,7 @@
     "version": "0.2.0",
     "configurations": [
 
+
     
         
         {
@@ -33,6 +34,25 @@
                  "ch",
              ]
          },
+
+         {
+            "name": "nmt-prep",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "/content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq", 
+            "args": [
+                "--source-lang","en",
+                "--target-lang","de",
+                "--trainpref","examples/translation/iwslt14.tokenized.de-en/train",
+                "--validpref","examples/translation/iwslt14.tokenized.de-en/valid",
+                "--testpref","examples/translation/iwslt14.tokenized.de-en/test",
+                "--destdir","data-bin/iwslt14.tokenized.de-en",
+                "--workers","20",
+                
+            ]
+        },
 
 
     ]

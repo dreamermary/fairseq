@@ -43,7 +43,7 @@ def main(args):
 
     task = tasks.get_task(args.task)
 
-    def train_path(lang):
+    def train_path(lang): ## xxx/train.de
         return "{}{}".format(args.trainpref, ("." + lang) if lang else "")
 
     def file_name(prefix, lang):

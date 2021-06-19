@@ -125,6 +125,7 @@ for l in $src $tgt; do
 done
 
 echo "learn_bpe.py on ${TRAIN}..."
+echo $BPE_TOKENS < $TRAIN > $BPE_CODE
 python $BPEROOT/learn_bpe.py -s $BPE_TOKENS < $TRAIN > $BPE_CODE
 
 for L in $src $tgt; do

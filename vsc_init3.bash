@@ -26,7 +26,6 @@
 # python3 -m debugpy --listen 0.0.0.0:5678 ./examples/speech_to_text/prep_bstc_data_2.py  --data-root ${COVOST_ROOT} --vocab-type char --src-lang en --tgt-lang zh-CN
 #python3 -m debugpy --listen 0.0.0.0:5678 ./examples/speech_to_text/prep_bstc_data_2.py     --data-root ${BSTC_ROOT}      --src-vocab-type char  --src-vocab-size 3000     -s ch
 
-# pip uninstall -y numpy
-pip install --editable ./
-pip install pandas torchaudio soundfile sentencepiece debugpy numpy omegaconf
+pip3 uninstall -y numpy
+pip3     install pandas torchaudio soundfile sentencepiece debugpy numpy omegaconf --editable ./
 apt install vim screen

@@ -48,13 +48,13 @@ class P2GLSTMEncoder(FairseqEncoder):
 
     # 编码器输出进行重排序 以 推断使用
     def reorder_encoder_out(self, encoder_out, new_order):
-        final_hidden = encoder_out['final_hidden]
+        final_hidden = encoder_out['final_hidden']
         return {
             'final_hidden': final_hidden.index_select(0, new_order)
         }
 
 
-class P2GLSTMDecoder(FairseqDecoder)
+class P2GLSTMDecoder(FairseqDecoder):
     def __init__(
         self, dictionary, encoder_hidden_dim=256, embed_dim=256, hidden_dim=256, dropout=0.1
     ):
@@ -82,7 +82,7 @@ class P2GLSTMDecoder(FairseqDecoder)
     def forward(self, prev_output_tokens, encoder_out):
         
         bsz, tgt_len = prev_output_tokens.size()
-        final_encoder_hidden = encoder_out['final_hidden] # [bz, encoder_hid_dim]
+        final_encoder_hidden = encoder_out['final_hidden'] # [bz, encoder_hid_dim]
         
         #embedding
         x = self.embed_tokens(prev_output_tokens)
@@ -140,14 +140,14 @@ class MP2GLSTMModel(FairseqEncoderDecoderModel):
         encoder = P2GLSTMEncoder(
             args=args,
             dictionary=task.source_dictionary,
-            embed_dim==args.encoder_embed_dim,
+            embed_dim=args.encoder_embed_dim,
             hidden_dim=args.encoder_hidden_dim,
             dropout=args.encoder_dropout,
         )
         decoder = P2GLSTMDecoder(
             args=args,
             dictionary=task.target_dictionary,
-            embed_dim==args.decoder_embed_dim,
+            embed_dim=args.decoder_embed_dim,
             hidden_dim=args.decoder_hidden_dim,
             dropout=args.decoder_dropout,
         )

@@ -11,7 +11,6 @@ Phone - valid - test - en_de
 
 # learn & apply bpe in phone dataset
 bash m_prepare-phone.sh
-
 # dict & Binarize 
 TEXT=/home/mhl/dataset/wmt2/bpephone # 数据集位置
 fairseq-preprocess \
@@ -26,7 +25,8 @@ fairseq-preprocess \
 
 # train
 CHECKPOINT_PHONE=/content/drive/Shareddrives/mahouli249\\@gmail.com/exp/fairseq/wmt/phone/
-CHECKPOINT_PHONE=/content/drive/Shareddrives/mahouli249@gmail.com/exp/fairseq/wmt/CHECKPOINT_PHONE
+export PYTHONPATH=/content/drive/Shareddrives/mahouli249@gmail.com/git/fairseq:$PYTHONPATH
+EXP_ROOT=/content/drive/Shareddrives/mahouli249@gmail.com/exp/fairseq
 fairseq-train \
     /content/drive/MyDrive/dataset/wmt/phone/data-bin/phone_com_en_de/ \
     --arch fconv_wmt_en_de \
@@ -35,15 +35,22 @@ fairseq-train \
     --optimizer nag --clip-norm 0.1 \
     --lr 0.5 --lr-scheduler fixed --force-anneal 50 \
     --max-tokens 4000 \
-    --save-dir $CHECKPOINT_PHONE \
+    --save-dir $EXP_ROOT/wmt/checkpoint_phone_com_ed \
     --max-epoch 100 \
-    --tensorboard-logdir m_log/phone_com_en_de_5 | tee  m_log/phone_com_en_de_5.log
+    --cpu \
+    --tensorboard-logdir $EXP_ROOT/m_log/phone_com_en_de_10 | tee  $EXP_ROOT/m_log/phone_com_en_de_10.log
 
 # Evaluate
 fairseq-generate /content/drive/MyDrive/dataset/wmt/phone/data-bin/phone_com_en_de/ \
-    --path CHECKPOINT_PHONE/checkpoint_best.pt \
+    --path  $EXP_ROOT/wmt/checkpoint_phone_com_ed/checkpoint.avg_36_6.pt \
     --beam 5 --remove-bpe \
-    --tensorboard-logdir m_log/gene_phone_com_en_de_21 | tee  m_log/gene_phone_com_en_de_21.log
+    --tensorboard-logdir m_log/gene_phone_com_en_de_36_6 | tee  m_log/gene_phone_com_en_de_36_6.log
+
+# average
+python  scripts/average_checkpoints.py \
+    --inputs $EXP_ROOT/wmt/checkpoint_phone_com_ed \
+    --num-epoch-checkpoints 6 \
+    --output $EXP_ROOT/wmt/checkpoint_phone_com_ed/checkpoint.avg_36_6.pt
 
  ```
  ---
